@@ -1,19 +1,11 @@
 class Solution:
-    def isBalanced(self, root):
-        stack = [(root, False)]
-        height = {}
-        while stack:
-            node, seen = stack.pop()
-            if not node:
-                continue
-            if seen:
-                l = height.get(node.left, 0)
-                r = height.get(node.right, 0)
-                if abs(l - r) > 1:
-                    return False
-                height[node] = 1 + max(l, r)
-            else:
-                stack.append((node, True))
-                stack.append((node.right, False))
-                stack.append((node.left, False))
-        return True
+    def isBalanced(self, mroot: Optional[TreeNode]) -> bool:
+            def dfs(root,dpt):
+                if not root: return dpt -1
+                left = dfs(root.left,dpt+1)
+                if left == -1: return -1
+                right = dfs(root.right,dpt+1)
+                if right == -1: return -1
+                if abs(left - right) > 1: return -1
+                return max(left, right)
+            return  dfs(mroot,1) != -1
