@@ -1,3 +1,14 @@
 class Solution:
-    def kthSmallest(self, r: Optional[TreeNode], k: int) -> int:
-        return (f:=lambda n:n and f(n.left)+[n.val]+f(n.right) or [])(r)[k-1]
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -> int:
+        res = []
+
+        def dfs(node):
+            if not node:
+                return
+
+            dfs(node.left)
+            res.append(node.val)
+            dfs(node.right)
+        
+        dfs(root)
+        return res[k-1]
