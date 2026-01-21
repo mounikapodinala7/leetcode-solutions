@@ -14,4 +14,5 @@ class Solution:
                 cnt += 1
                 temp >>= 1
             res.append(cur - (1 << (cnt - 1)))
+
         return res
