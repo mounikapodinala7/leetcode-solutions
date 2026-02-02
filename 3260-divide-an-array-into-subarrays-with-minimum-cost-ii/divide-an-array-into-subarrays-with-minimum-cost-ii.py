@@ -1,38 +1,49 @@
-from sortedcontainers import SortedList
-
 class Solution:
     def minimumCost(self, nums: List[int], k: int, dist: int) -> int:
-        target = k - 1
+        
+        def move_from_left_to_right():
+            nonlocal current_sum
+            element = left_set.pop()
+            current_sum -= element 
+            right_set.add(element)
 
-        sl = SortedList(nums[1 : dist + 2])
+        def move_from_right_to_left():
+            nonlocal current_sum
+            element = right_set.pop(0)
+            left_set.add(element)
+            current_sum += element 
 
-        current_sum = sum(sl[:target])
-        min_sum = current_sum
+        k -= 1
 
-        n = len(nums)
-        for i in range(dist + 2, n):
-            out_val = nums[i - (dist + 1)]
-            in_val = nums[i]
+        current_sum = sum(nums[:dist + 2])
+        left_set = SortedList(nums[1:dist + 2])
+        right_set = SortedList()
 
-            index_to_remove = sl.index(out_val)
+        while len(left_set) > k:
+            move_from_left_to_right()
 
-            sl.remove(out_val)
-            sl.add(in_val)
+        min_cost = current_sum 
 
-            index_of_add = sl.index(in_val)
-
-            if index_to_remove < target:
-                current_sum -= out_val
-
-                if index_of_add < target:
-                    current_sum += in_val
-                else:
-                    current_sum += sl[target - 1]
+        for i in range(dist + 2, len(nums)):
+            outgoing_element = nums[i - dist - 1]
+            if outgoing_element in left_set:
+                left_set.remove(outgoing_element)
+                current_sum -= outgoing_element
             else:
-                if index_of_add < target:
-                    current_sum += in_val
-                    current_sum -= sl[target]
+                right_set.remove(outgoing_element)
 
-            min_sum = min(min_sum, current_sum)
+            incoming_element = nums[i]
+            if left_set and incoming_element < left_set[-1]:
+                left_set.add(incoming_element)
+                current_sum += incoming_element
+            else:
+                right_set.add(incoming_element)
 
-        return nums[0] + min_sum
+            while len(left_set) < k:
+                move_from_right_to_left()
+            while len(left_set) > k:
+                move_from_left_to_right()
+
+            min_cost = min(min_cost, current_sum)
+
+        return min_cost 
