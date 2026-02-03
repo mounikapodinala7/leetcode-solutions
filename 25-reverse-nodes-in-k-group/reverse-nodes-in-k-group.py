@@ -1,32 +1,45 @@
 class Solution:
+    def reverseLinkedList(self, head, k):
+        new_head, ptr = None, head
+        while k:
+            next_node = ptr.next
+            ptr.next = new_head
+            new_head = ptr
+            ptr = next_node
+
+            k -= 1
+
+        return new_head
+
     def reverseKGroup(self, head: ListNode, k: int) -> ListNode:
-        if not head or k == 1:
-            return head
 
-        dummy = ListNode(0)
-        dummy.next = head
-        prev = dummy
-        curr = head
+        ptr = head
+        ktail = None
 
-        # Count the number of nodes in the list
-        count = 0
-        while curr:
-            count += 1
-            curr = curr.next
+        new_head = None
 
-        # Reverse k nodes at a time
-        while count >= k:
-            curr = prev.next
-            nxt = curr.next
+        while ptr:
+            count = 0
 
-            # Reverse k nodes
-            for _ in range(1, k):
-                curr.next = nxt.next
-                nxt.next = prev.next
-                prev.next = nxt
-                nxt = curr.next
+            ptr = head
 
-            prev = curr
-            count -= k
+            while count < k and ptr:
+                ptr = ptr.next
+                count += 1
 
-        return dummy.next
+            if count == k:
+
+                revHead = self.reverseLinkedList(head, k)
+                if not new_head:
+                    new_head = revHead
+
+                if ktail:
+                    ktail.next = revHead
+
+                ktail = head
+                head = ptr
+
+        if ktail:
+            ktail.next = head
+
+        return new_head if new_head else head
