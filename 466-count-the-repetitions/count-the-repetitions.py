@@ -1,33 +1,33 @@
 class Solution:
     def getMaxRepetitions(self, s1: str, n1: int, s2: str, n2: int) -> int:
-        # Early exit if s1 is too small to contain s2
-        if n1 == 0:
-            return 0
-        
-        s1_count, s2_count, index = 0, 0, 0
-        recall = {}
 
-        # Process s1 n1 times
-        while s1_count < n1:
-            s1_count += 1
-            for char in s1:
-                if char == s2[index]:
-                    index += 1
-                if index == len(s2):
-                    s2_count += 1
-                    index = 0
-            
-            # Detect and handle loops
-            if index in recall:
-                prev_s1_count, prev_s2_count = recall[index]
-                loop_s1_count = s1_count - prev_s1_count
-                loop_s2_count = s2_count - prev_s2_count
-                
-                # Calculate how many times the loop can repeat
-                remaining_loops = (n1 - s1_count) // loop_s1_count
-                s1_count += remaining_loops * loop_s1_count
-                s2_count += remaining_loops * loop_s2_count
+        rec, track = [0], defaultdict(int) 
+        ct = start = ptr1 = ptr2 = 0
 
-            recall[index] = (s1_count, s2_count)
+        if not set(s2).issubset(set(s1)): return 0
+
+        s1 = ''.join(char for char in s1 if char in set(s2))
         
-        return s2_count // n2
+        while True:
+            for char in s2:
+                ptr = s1.find(char, start)
+                if ptr == -1:
+                    ct += 1
+                    ptr = s1.find(char)
+                start = ptr+1
+            rec.append(ct + 1)
+
+            if rec[-1] > n1: return (len(rec)-2)//n2
+
+            if ptr not in track: track[ptr] = len(rec)-1
+            else: break
+        
+        cycleStart = rec[track[ptr]]
+        cycle1, cycle2 = ct+1 - cycleStart, len(rec)-1 - track[ptr]
+        rest = n1 - cycleStart
+        
+        rem = cycleStart + rest%cycle1
+
+        while rec[ptr2] <= rem: ptr2+= 1
+
+        return (cycle2 * (rest//cycle1) + ptr2-1)//n2
